@@ -1,14 +1,20 @@
 import React, { useState, useRef, useMemo } from 'react';
+import Loading from "./Loading";
+import FlashMessage from "./FlashMessage";
 
 const UploadImage: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+    const [flashMessage, setFlashMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const selectedFileArray: File[] = useMemo(() => {
         return selectedFiles ? [...Array.from(selectedFiles)] : [];
     }, [selectedFiles]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsLoading(true); // Start loading
+
         const files = e.target.files;
         if (!files) return;
         if (!inputRef.current?.files) return;
@@ -21,20 +27,29 @@ const UploadImage: React.FC = () => {
         );
         const dt = new DataTransfer();
         newFileArray.forEach((file) => dt.items.add(file));
-        inputRef.current.files = dt.files; // input内のFileListを更新
-        setSelectedFiles(dt.files); // Reactのstateを更新
+        inputRef.current.files = dt.files;
+        setSelectedFiles(dt.files);
+        setTimeout(() => {
+            setIsLoading(false);
+            setFlashMessage('ファイルのアップロードと画像からの文字取得が完了しました。');
+            setTimeout(() => {
+                setFlashMessage(null);
+            }, 3000);
+        }, 3000);
     };
 
     const handleDelete = (index: number) => {
         if (!inputRef.current?.files) return;
         const dt = new DataTransfer();
         selectedFileArray.forEach((file, i) => i !== index && dt.items.add(file));
-        inputRef.current.files = dt.files; // input内のFileListを更新
-        setSelectedFiles(dt.files); // Reactのstateを更新
+        inputRef.current.files = dt.files;
+        setSelectedFiles(dt.files);
     };
 
     return (
         <>
+            {isLoading && <Loading />}
+            {flashMessage && (<FlashMessage message={flashMessage} />)}
             <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
