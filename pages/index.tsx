@@ -7,6 +7,15 @@ const IndexPage = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showForm, setShowForm] = useState(false);
+  const [formValues, setFormValues] = useState<{ [key: string]: { field1: string; field2: string; field3: string; field4: string } }>({});
+
+  useEffect(() => {
+    const isBulkUpload = localStorage.getItem('isBulkUpload');
+    if (isBulkUpload) {
+      setFlashMessage('一括入稿の処理を開始しました。しばらくおまちください。');
+      localStorage.removeItem('isBulkUpload'); // フラグをクリア
+    }
+  }, []);
 
   useEffect(() => {
     if (flashMessage) {
@@ -25,7 +34,17 @@ const IndexPage = () => {
   const handleFilesSelected = (files: FileList) => {
     setSelectedFiles(files);
     setCurrentIndex(0);
-    setShowForm(false); // フォームを隠す
+    setShowForm(false);
+    const initialFormValues: { [key: string]: { field1: string; field2: string; field3: string; field4: string } } = {};
+    Array.from(files).forEach((file, index) => {
+      initialFormValues[file.name] = {
+        field1: `テスト物件${index + 1}`,
+        field2: `テスト街区${index + 1}`,
+        field3: `テスト階建${index + 1}`,
+        field4: `テスト物件種別${index + 1}`
+      };
+    });
+    setFormValues(initialFormValues);
   };
 
   const handleNext = () => {
@@ -38,6 +57,23 @@ const IndexPage = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
+  };
+
+  const handleChange = (fileName: string, field: string, value: string) => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [fileName]: {
+        ...prevValues[fileName],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSubmit = () => {
+    // ローカルストレージにフラグを設定
+    localStorage.setItem('isBulkUpload', 'true');
+    // ページをリロード
+    window.location.reload();
   };
 
   return (
@@ -61,7 +97,7 @@ const IndexPage = () => {
       </div>
       <UploadImage onFilesSelected={handleFilesSelected} onUploadComplete={handleUploadComplete} />
       {showForm && selectedFiles && (
-        <div className='m-auto mt-4 border p-4'>
+        <div className='mx-auto my-4 border p-4'>
           {Array.from(selectedFiles).map((file, index) => (
             index === currentIndex && (
               <div key={file.name}>
@@ -75,41 +111,49 @@ const IndexPage = () => {
                 <form>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input1-${index}`}>
-                      フィールド1
+                      物件名
                     </label>
                     <input
                       id={`input1-${index}`}
                       type="text"
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={formValues[file.name]?.field1 || ''}
+                      onChange={(e) => handleChange(file.name, 'field1', e.target.value)}
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input2-${index}`}>
-                      フィールド2
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input2-${file.name}`}>
+                      街区・号棟
                     </label>
                     <input
-                      id={`input2-${index}`}
+                      id={`input2-${file.name}`}
                       type="text"
+                      value={formValues[file.name]?.field2 || ''}
+                      onChange={(e) => handleChange(file.name, 'field2', e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input3-${index}`}>
-                      フィールド3
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input3-${file.name}`}>
+                      階建
                     </label>
                     <input
-                      id={`input3-${index}`}
+                      id={`input3-${file.name}`}
                       type="text"
+                      value={formValues[file.name]?.field3 || ''}
+                      onChange={(e) => handleChange(file.name, 'field3', e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input4-${index}`}>
-                      フィールド4
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`input4-${file.name}`}>
+                      物件種別
                     </label>
                     <input
-                      id={`input4-${index}`}
+                      id={`input4-${file.name}`}
                       type="text"
+                      value={formValues[file.name]?.field4 || ''}
+                      onChange={(e) => handleChange(file.name, 'field4', e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </div>
@@ -132,6 +176,7 @@ const IndexPage = () => {
                   ) : (
                     <button
                       className='focus:outline-none text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-lg text-sm px-5 py-2'
+                      onClick={handleSubmit}
                     >
                       一括入稿
                     </button>
