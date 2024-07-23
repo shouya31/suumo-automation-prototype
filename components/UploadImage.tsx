@@ -7,7 +7,7 @@ interface UploadImageProps {
 }
 
 
-const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete, onFilesSelected }: { onUploadComplete?: () => void }) => {
+const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete, onFilesSelected }: { onUploadComplete?: () => void; onFilesSelected: (files: FileList) => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [isLoading, setIsLoading] = useState(false);
