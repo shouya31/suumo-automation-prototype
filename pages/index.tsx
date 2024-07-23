@@ -157,6 +157,9 @@ const IndexPage = () => {
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </div>
+                  <div className='text-center text-4xl'>.</div>
+                  <div className='text-center text-4xl'>.</div>
+                  <div className='text-center text-4xl'>.</div>
                 </form>
                 <div className='flex justify-between'>
                   <button
