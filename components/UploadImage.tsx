@@ -3,9 +3,11 @@ import Loading from "./Loading";
 
 interface UploadImageProps {
     onUploadComplete?: () => void;
+    onFilesSelected: (files: FileList) => void;
 }
 
-const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete }: { onUploadComplete?: () => void }) => {
+
+const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete, onFilesSelected }: { onUploadComplete?: () => void }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,7 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete }: { onUploa
         newFileArray.forEach((file) => dt.items.add(file));
         inputRef.current.files = dt.files;
         setSelectedFiles(dt.files);
+        onFilesSelected(dt.files);
         setTimeout(() => {
             setIsLoading(false);
             if (onUploadComplete) {
@@ -45,6 +48,7 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUploadComplete }: { onUploa
         selectedFileArray.forEach((file, i) => i !== index && dt.items.add(file));
         inputRef.current.files = dt.files;
         setSelectedFiles(dt.files);
+        onFilesSelected(dt.files);
     };
 
     return (
