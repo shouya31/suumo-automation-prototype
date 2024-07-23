@@ -12,7 +12,7 @@ const IndexPage = () => {
   useEffect(() => {
     const isBulkUpload = localStorage.getItem('isBulkUpload');
     if (isBulkUpload) {
-      setFlashMessage('一括入稿の処理を開始しました。しばらくおまちください。');
+      setFlashMessage('一括入稿の処理を開始しました。処理完了までしばらくおまちください。');
       localStorage.removeItem('isBulkUpload'); // フラグをクリア
     }
   }, []);
